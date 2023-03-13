@@ -1,4 +1,4 @@
-# Purple
+# Purple!
 A plugin for OpenRCT2 that turns everything possible in the park purple! Yes, this is a necessity to enjoy the game
 
 How to install: Simply place the Purple!.js file in the OpenRCT2 Plugins folder
