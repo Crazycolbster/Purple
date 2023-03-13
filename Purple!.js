@@ -1,18 +1,45 @@
 /// <reference path="/home/killmore/.config/OpenRCT2/plugin/openrct2.d.ts" />
 //Script that colors everything possible Purple. Yes, this is a necessary function to enjoy the game.
+
+const namespace = 'purple';
+const setGuestClothingKey = namespace + ".setGuestClothing"
+const setStaffClothingKey = namespace + ".setStaffClothing"
+const setRideColorKey = namespace + ".setRideColor"
+const setSceneryColorKey = namespace + ".setSceneryColor"
+const setSurfaceColorKey = namespace + ".setSurfaceColor"
+const setBannerColorKey = namespace + ".setBannerColor"
+
 function main() {
     ui.registerMenuItem('Purple!', function() {
-        makePurple();
+        showWindow();
     });
 }
 
 function makePurple() {
-    setGuestClothing(30,5)//These numbers are indexes pointing to one of the shades of purple
-    setStaffClothing(5)
-    setRideColor(3, 4, 5, 29)
-    setSceneryColor(3, 4, 5)
-    setSurfaceColor(10)
-    setBannerColor(5,11)
+    if (getConfig(setGuestClothingKey, true)) {
+        console.log("Changing Guest Clothes")
+        setGuestClothing(5,30)//These numbers are indexes pointing to one of the shades of purple
+    }
+    if (getConfig(setStaffClothingKey, true)) {
+        console.log("Changing Staff Clothes")
+        setStaffClothing(5)
+    }
+    if (getConfig(setRideColorKey, true)) {
+        console.log("Changing Ride Colors")
+        setRideColor(3, 4, 5, 29)
+    }
+    if (getConfig(setSceneryColorKey, true)) {
+        console.log("Changing Scenery Colors")
+        setSceneryColor(3, 4, 5)
+    }
+    if (getConfig(setSurfaceColorKey, true)) {
+        console.log("Changing Surface Colors")
+        setSurfaceColor(10)
+    }
+    if (getConfig(setBannerColorKey, true)) {
+        console.log("Changing Banner Colors")
+        setBannerColor(5,11)
+    }
 };
 
 var setGuestClothing = function(tshirtColour, trousersColour) {
@@ -132,9 +159,140 @@ var setBannerColor = function(bannerColor, textColor) {
     }
 }
 
+// Retrieve given key from sharedStorage, returns defaultValue if not found.
+const getConfig = function(key, defaultValue) {
+    return context.sharedStorage.get(key, defaultValue);
+}
+
+// Stores given value under given key in sharedStorage.
+const setConfig = function(key, value) {
+    return context.sharedStorage.set(key, value)
+}
+
+// Configuration window
+const showWindow = function() {
+    const window = ui.getWindow('namespace');
+    //Attempt to bring the current Purple! window to the front. Opens if it fails.
+    try {
+        currentWindow = ui.getWindow('Purple!');
+        currentWindow.bringToFront();
+    }
+    catch (error) {
+    ui.openWindow({
+        classification: 'Purple!',
+        width: 240,
+        height: 102,
+        title: 'Purple!',
+        colours: [5,30],
+        widgets: [
+            {
+                name: 'guestCheck',
+                type: 'checkbox',
+                x: 5,
+                y: 20,
+                width: 210,
+                height: 10,
+                tooltip: "Every guest will be unique! Uniquely one color anyways",
+                text: "Guest Colors",
+                isChecked: getConfig(setGuestClothingKey, true),
+                onChange: function (params) { setConfig(setGuestClothingKey, params), updateText()}
+            },
+            {
+                name: 'staffCheck',
+                type: 'checkbox',
+                x: 5,
+                y: 40,
+                width: 210,
+                height: 10,
+                tooltip: "Work sucks, but it would suck a lot less if you were forecd to wear bright purple!",
+                text: "Staff Colors",
+                isChecked: getConfig(setStaffClothingKey, true),
+                onChange: function (params) { setConfig(setStaffClothingKey, params), updateText()}
+            },
+            {
+                name: 'rideCheck',
+                type: 'checkbox',
+                x: 5,
+                y: 60,
+                width: 110,
+                height: 10,
+                tooltip: "These coasters will be so purple, even your vomit will be violet!",
+                text: "Ride Colors",
+                isChecked: getConfig(setRideColorKey, true),
+                onChange: function (params) { setConfig(setRideColorKey, params), updateText()}
+            },
+            {
+                name: 'sceneryCheck',
+                type: 'checkbox',
+                x: 115,
+                y: 20,
+                width: 210,
+                height: 10,
+                tooltip: "Why build a brown wall, when you could build a purple wall?",
+                text: "Scenery Colors",
+                isChecked: getConfig(setSceneryColorKey, true),
+                onChange: function (params) { setConfig(setSceneryColorKey, params), updateText()}
+            },
+            {
+                name: 'surfaceCheck',
+                type: 'checkbox',
+                x: 115,
+                y: 40,
+                width: 210,
+                height: 10,
+                tooltip: "The system! Is down! The system! Is down!",
+                text: "Surface Color",
+                isChecked: getConfig(setSurfaceColorKey, true),
+                onChange: function (params) { setConfig(setSurfaceColorKey, params), updateText()}
+            },
+            {
+                name: 'bannerCheck',
+                type: 'checkbox',
+                x: 115,
+                y: 60,
+                width: 210,
+                height: 10,
+                tooltip: "Purple Text on a Purple Border. This is 100% readable and color blind friendly",
+                text: "Banner Color",
+                isChecked: getConfig(setBannerColorKey, true),
+                onChange: function (params) { setConfig(setBannerColorKey, params), updateText()}
+            },
+            {
+                name: 'runPurple',
+                type: 'button',
+                x: 5,
+                y: 75,
+                width: 230,
+                height: 21,
+                text: "Purple!",
+                tooltip: "Pick your settings, and Purple your Park!",
+                isPressed: false,
+                onClick: function (params) { makePurple(),params}
+            }
+        ],
+    });
+    updateText();
+    return;}
+    updateText();
+}
+
+var updateText = function() {//Checks if every checkbox is ticked, and if so, updates the button text for the execute button.
+    currentWindow = ui.getWindow('Purple!')
+    button = currentWindow.findWidget('runPurple');
+    if (getConfig(setGuestClothingKey,true) && getConfig(setStaffClothingKey, true) && getConfig(setRideColorKey, true) && getConfig(setSceneryColorKey, true) && getConfig(setSurfaceColorKey,true) && getConfig(setBannerColorKey, true) == true) {
+        button.text = "Maximum Purple!";
+    }// Checks if every button is not selected, and is sad if that's the case.
+    else if ((getConfig(setGuestClothingKey,true) || getConfig(setStaffClothingKey, true) || getConfig(setRideColorKey, true) || getConfig(setSceneryColorKey, true) || getConfig(setSurfaceColorKey,true) || getConfig(setBannerColorKey, true)) == false) {
+        button.text = ":("
+    }
+    else {
+        button.text = "Purple!";
+    }
+}
+
 registerPlugin({
     name: 'Purple!',
-    version: '1.0',
+    version: '1.1',
     authors: ['Crazycolbster'],
     type: 'remote',
     licence: 'MIT',
